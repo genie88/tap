@@ -66,9 +66,9 @@
             }
         },
         onTouchEnd = function (e) {
-            var eventsArr = [],
-                deltaY = cachedY - currY,
-                deltaX = cachedX - currX;
+            var deltaY = Math.abs(cachedY - currY),
+                deltaX = Math.abs(cachedX - currX),
+                deltaT = getTimestamp() - timestamp;
 
             // clear the previous timer in case it was set
             clearTimeout(tapTimer);
@@ -77,31 +77,26 @@
                 handleGestureStop();
             }
 
-            if (deltaX <= -swipeThreshold) eventsArr.push('swiperight');
-
-            if (deltaX >= swipeThreshold) eventsArr.push('swipeleft');
-
-            if (deltaY <= -swipeThreshold) eventsArr.push('swipedown');
-
-            if (deltaY >= swipeThreshold) eventsArr.push('swipeup');
-            if (eventsArr.length) {
-                for (var i = 0; i < eventsArr.length; i++) {
-                    var eventName = eventsArr[i];
-                    sendEvent(e.target, eventName, e, {
+            if (deltaY >= swipeThreshold || deltaX >= swipeThreshold) {
+                sendEvent(e.target, 'swipe', e, {
                         distance: {
-                            x: Math.abs(deltaX),
-                            y: Math.abs(deltaY)
+                            x: deltaX,
+                            y: deltaY
+                        },
+                        direction: (deltaX > deltaY)? ((cachedX > currX) ? 'left' : 'right' ) :
+                                                      ((cachedY > currY) ? 'up' : 'down' ),
+                        velocity: {
+                            x: deltaX / deltaT,
+                            y: deltaY / deltaT
                         }
-                    });
-                }
+                });
             } else {
-
                 if (
                 (timestamp + tapThreshold) - getTimestamp() >= 0 && cachedX >= currX - tapPrecision && cachedX <= currX + tapPrecision && cachedY >= currY - tapPrecision && cachedY <= currY + tapPrecision) {
                     // Here you get the Tap event
                     sendEvent(e.target, (tapNum === 2) && (target === e.target) ? 'dbltap' : 'tap', e);
                     target = e.target;
-                } else if (getTimestamp() - timestamp > 1000) {
+                } else if (deltaT > longTapThreshold) {
                     sendEvent(e.target, 'longtap', e);
                     target = e.target;
                 }
@@ -144,27 +139,22 @@
                 currDistance = Math.sqrt(dx * dx + dy * dy);
                 currAngle = Math.atan2(dy, dx) * 180 / Math.PI;
 
-
-
                 //calculate the difference between current touch values and the start values
                 distanceChange = currDistance - cachedDistance;
                 angleChange = currAngle - cachedAngle;
 
-                log(angleChange + ',' + distanceChange)
-                if (distanceChange > 30) {
-                    sendEvent(e.target, 'pan', e);
+                if (Math.abs(distanceChange) > pinchThreshold) {
+                    sendEvent(e.target, 'pinch', e , {
+                        distance: distanceChange,
+                        zoomOut: distanceChange > 0 
+                    });
                 }
-                if (distanceChange < -30) {
-                    sendEvent(e.target, 'pinch', e);
-
+                if (Math.abs(angleChange) > rotateThreshold) {
+                    sendEvent(e.target, 'rotate', e, {
+                        angle: angleChange,
+                        clockwise: angleChange > 0
+                    });
                 }
-                if (angleChange < -10) {
-                    sendEvent(e.target, 'rotate-anticlockwise', e);
-                }
-                if (angleChange > 10) {
-                    sendEvent(e.target, 'rotate-clockwise', e);
-                }
-
             }
         },
 
@@ -174,7 +164,10 @@
 
         swipeThreshold = win.SWIPE_THRESHOLD || 100,
         tapThreshold = win.TAP_THRESHOLD || 150, // range of time where a tap event could be detected
+        longTapThreshold = win.LONG_TAP_THRESHOLD || 500, // range of time where a long tap event could be detected
         dbltapThreshold = win.DBL_TAP_THRESHOLD || 200, // delay needed to detect a double tap
+        pinchThreshold = win.PINCH_THRESHOLD || 30, // minimal distance needed to detect a pinch
+        rotateThreshold = win.ROTATE_THRESHOLD || 10, // minimal angle needed to detect a rotate
         tapPrecision = win.TAP_PRECISION / 2 || 60 / 2, // touch events boundaries ( 60px by default )
         justTouchEvents = win.JUST_ON_TOUCH_DEVICES || isTouch,
         tapNum = 0,

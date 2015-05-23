@@ -20,24 +20,12 @@
 	el.addEventListener('tap', onTap);
 	el.addEventListener('longtap', onLongTap);
 	el.addEventListener('dbltap', onDoubleTap);
-	el.addEventListener('swipeup', onSwipe);
-	el.addEventListener('swipedown', onSwipe);
-	el.addEventListener('swipeleft', onSwipe);
-	el.addEventListener('swiperight', onSwipe);
-	//el.addEventListener('pan', updateHtml);
+	el.addEventListener('swipe', onSwipe);
 	el.addEventListener('pinch', onPinch);
-	el.addEventListener('rotate-clockwise', onRotate);
-	el.addEventListener('rotate-anticlockwise', onRotate);
+	el.addEventListener('rotate', onRotate);
 	el.addEventListener('touchmove', preventDefault);
 	el.addEventListener('touchstart', preventDefault);
 	el.addEventListener('touchend', preventDefault);
-
-	// mc.on("panstart panmove", onPan);
-	// mc.on("rotaelart rotatemove", onRotate);
-	// mc.on("pinchstart pinchmove", onPinch);
-	// mc.on("swipe", onSwipe);
-	// mc.on("tap", onTap);
-	// mc.on("doubletap", onDoubleTap);
 
 	function logEvent(ev) {
 	    el.innerText = ev.type;
@@ -112,9 +100,9 @@
 
 	function onSwipe(ev) {
 	    var angle = 50;
-	    transform.ry = (ev.type == 'swipeleft' || ev.type == 'swiperight') ? 1 : 0;
-	    transform.rx = (ev.type == 'swipeup' || ev.type == 'swipedown') ? 1 : 0;
-	    transform.angle = (ev.type == 'swiperight' || ev.type == 'swipedown') ? angle : -angle;
+	    transform.ry = (ev.direction == 'left' || ev.direction == 'right') ? 1 : 0;
+	    transform.rx = (ev.direction == 'up' || ev.direction == 'down') ? 1 : 0;
+	    transform.angle = (ev.direction == 'right' || ev.direction == 'down') ? angle : -angle;
 
 	    clearTimeout(timer);
 	    timer = setTimeout(function () {
