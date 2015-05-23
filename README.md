@@ -1,8 +1,8 @@
-# tap
- lightweight script (~1kb) to detect via Javascript events like 'tap' 'dbltap' 'swipeup' 'swipedown' 'swipeleft' 'swiperight' 'pan' 'pinch' 'rotate' on any kind of device. no dependencies.
+#tap
+ lightweight script (~1kb) to detect via Javascript events like 'tap' 'dbltap' 'longtap' 'swipe' 'pinch' 'rotate' on any kind of device. no dependencies.
 
- ## Usage
- Include the script into your page:
+##Usage
+Include the script into your page:
 ```html
 <script src="path/to/tap.js"></script>
 ```
@@ -37,6 +37,7 @@ Anyway you can combine tap.js with the default javascript touch events:
 - touchstart
 - touchend
 - touchcancel
+
 To disable the default touch behaviours (zoom on double tap, scroll on swipe...) on a certain element via javascript you can always use the following snippet:
 
 elm.addEventListener('touchmove',function(e){e.preventDefault()});
