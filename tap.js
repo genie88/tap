@@ -49,7 +49,6 @@
 
         onTouchStart = function (e) {
             if (e.touches.length === 1) {
-                console.log("onTouchStart")
                 var pointer = getPointerEvent(e);
                 // caching the current x
                 cachedX = currX = pointer.pageX;
