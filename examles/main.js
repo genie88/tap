@@ -99,7 +99,7 @@
 	}
 
 	function onSwipe(ev) {
-	    var angle = 50;
+	    var angle = 50 * Math.max(ev.velocity.x , ev.velocity.y);
 	    transform.ry = (ev.direction == 'left' || ev.direction == 'right') ? 1 : 0;
 	    transform.rx = (ev.direction == 'up' || ev.direction == 'down') ? 1 : 0;
 	    transform.angle = (ev.direction == 'right' || ev.direction == 'down') ? angle : -angle;
